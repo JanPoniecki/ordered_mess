@@ -34,6 +34,7 @@ cd storage-scanner
    - set you ip address
    - set your port (8000 is default)
    - set USE_GOOGLE_VISION to 1 if you want to use google vision
+   - save as .env
 
 4. Build and start the containers:
 ```bash
