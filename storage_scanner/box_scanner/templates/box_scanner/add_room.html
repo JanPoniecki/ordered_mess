@@ -1,0 +1,11 @@
+{% extends 'box_scanner/base.html' %}
+{% block content %}
+    <h2>Dodaj pomieszczenie</h2>
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="name" placeholder="Nazwa pomieszczenia" required>
+        <label for="color">Kolor pomieszczenia:</label>
+        <input type="color" id="color" name="color" value="#ff0000">
+        <button type="submit">Zapisz</button>
+    </form>
+{% endblock %}

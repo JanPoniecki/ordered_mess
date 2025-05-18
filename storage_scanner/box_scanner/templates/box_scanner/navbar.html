@@ -1,0 +1,159 @@
+{% load static %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+    .navbar {
+        background-color: #333;
+        overflow: hidden;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+    }
+    .navbar a {
+        color: white;
+        text-decoration: none;
+        padding: 10px 15px;
+        display: block;
+    }
+    .navbar a:hover {
+        background-color: #575757;
+    }
+    .menu-icon {
+        display: none;
+        cursor: pointer;
+        font-size: 24px;
+        color: white;
+        padding: 10px;
+        z-index: 1000;
+    }
+    .navbar-links {
+        display: flex;
+        align-items: center;
+    }
+    /* @media (max-width: 600px) {
+        .navbar {
+            position: relative;
+        }
+        .menu-icon {
+            display: block;
+        }
+        .navbar-links {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: #333;
+            flex-direction: column;
+            padding: 10px 0;
+        }
+        .navbar-links.show {
+            display: flex;
+        }
+        .navbar-links a {
+            width: 100%;
+            text-align: left;
+            padding: 15px 20px;
+            border-top: 1px solid #444;
+        }
+    } */
+    input, select, button {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    button {
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+        border: none;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+    /* body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background-color: #f4f4f4;
+        padding: 20px;
+    } */
+    .container {
+        max-width: 400px;
+        width: 100%;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+    /* input[type="file"] {
+        display: none;
+    } */
+    label {
+        display: block;
+        background: #007bff;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+    img {
+        max-width: 100%;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+    /* button {
+        background: #28a745;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    } */
+</style>
+
+<div class="navbar">
+    <span class="menu-icon" onclick="toggleMenu()">☰</span>
+    <div class="navbar-links" id="navbar-links">
+        <a href="{% url 'room_browser' %}">Rooms</a>
+        <a href="{% url 'container_browser' %}">Containers</a>
+        <a href="{% url 'item_list' %}">Items</a>
+        <a href="{% url 'upload_image' %}">Add Item</a>
+    </div>
+</div>
+
+<script>
+function toggleMenu() {
+    const navbarLinks = document.getElementById('navbar-links');
+    navbarLinks.classList.toggle('show');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', function(event) {
+    const navbarLinks = document.getElementById('navbar-links');
+    const menuIcon = document.querySelector('.menu-icon');
+    
+    if (!navbarLinks.contains(event.target) && !menuIcon.contains(event.target)) {
+        navbarLinks.classList.remove('show');
+    }
+});
+
+// Close menu when clicking a link
+document.querySelectorAll('.navbar-links a').forEach(link => {
+    link.addEventListener('click', function() {
+        const navbarLinks = document.getElementById('navbar-links');
+        navbarLinks.classList.remove('show');
+    });
+});
+</script>

@@ -1,0 +1,98 @@
+{% extends "box_scanner/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                {% if item.image %}
+                <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}" style="max-height: 500px; object-fit: contain;">
+                {% endif %}
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ item.name }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="text_content" class="form-label">Text Content</label>
+                            <textarea class="form-control" id="text_content" name="text_content" rows="3">{% for feature in item.features %}{% if feature.type == 'text' %}{{ feature.content }}{% endif %}{% endfor %}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Labels</label>
+                            <div class="mb-2">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="new_label" name="new_label" placeholder="Add new label">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="addNewLabel()">Add</button>
+                                </div>
+                            </div>
+                            <div id="labels-container" class="d-flex flex-wrap gap-2">
+                                {% for label in current_labels %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="label_{{ label }}" id="label_{{ label }}" checked>
+                                    <label class="form-check-label" for="label_{{ label }}">
+                                        {{ label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="container" class="form-label">Container</label>
+                            <select name="container" id="container" class="form-select">
+                                <option value="">-- Select a container --</option>
+                                {% for container in containers %}
+                                <option value="{{ container.id }}" {% if container.id == item.container.id %}selected{% endif %}>
+                                    {{ container.name }} ({{ container.location.name }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <button type="submit" name="update_details" class="btn btn-success">
+                            <i class="fas fa-check"></i> Confirm Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function addNewLabel() {
+    const newLabelInput = document.getElementById('new_label');
+    const labelText = newLabelInput.value.trim();
+    
+    if (labelText) {
+        const labelsContainer = document.getElementById('labels-container');
+        const labelId = 'label_' + labelText.replace(/\s+/g, '_');
+        
+        // Create new checkbox
+        const div = document.createElement('div');
+        div.className = 'form-check';
+        div.innerHTML = `
+            <input class="form-check-input" type="checkbox" name="${labelId}" id="${labelId}" checked>
+            <label class="form-check-label" for="${labelId}">
+                ${labelText}
+            </label>
+        `;
+        
+        labelsContainer.appendChild(div);
+        newLabelInput.value = ''; // Clear input
+    }
+}
+
+// Allow adding label with Enter key
+document.getElementById('new_label').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        addNewLabel();
+    }
+});
+</script>
+{% endblock %} 

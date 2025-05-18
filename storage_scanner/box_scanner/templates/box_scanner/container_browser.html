@@ -1,0 +1,95 @@
+{% extends "box_scanner/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title mb-0">
+                            {% if current_room %}
+                            Containers in {{ current_room.name }}
+                            {% else %}
+                            Container Browser
+                            {% endif %}
+                        </h2>
+                        {% if current_room %}
+                        <a href="{% url 'container_browser' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Clear Room Filter
+                        </a>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Search Box -->
+                    <form method="get" class="mb-4">
+                        <div class="input-group">
+                            <input type="text" 
+                                   class="form-control" 
+                                   name="search" 
+                                   placeholder="Search containers..." 
+                                   value="{{ search_query }}"
+                                   autofocus>
+                            {% if current_room %}
+                            <input type="hidden" name="room" value="{{ current_room.id }}">
+                            {% endif %}
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Add Container Form -->
+                    <form method="post" class="mb-4">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <input type="text" 
+                                       class="form-control" 
+                                       name="name" 
+                                       placeholder="Container name" 
+                                       required>
+                            </div>
+                            <div class="col-md-4">
+                                <select name="room" class="form-select" required>
+                                    <option value="">Select room...</option>
+                                    {% for room in rooms %}
+                                    <option value="{{ room.id }}" {% if current_room and room.id == current_room.id %}selected{% endif %}>
+                                        {{ room.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <!-- Container List -->
+                    <div class="list-group">
+                        {% for container in containers %}
+                        <a href="{% url 'item_list' %}?container={{ container.id }}" 
+                           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1">{{ container.name }}</h5>
+                                <small class="text-muted">{{ container.location.name }}</small>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">
+                                {{ container.item_set.count }} items
+                            </span>
+                        </a>
+                        {% empty %}
+                        <div class="alert alert-info">
+                            No containers found{% if current_room %} in {{ current_room.name }}{% endif %}{% if search_query %} matching "{{ search_query }}"{% endif %}.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

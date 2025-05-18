@@ -1,0 +1,53 @@
+{% extends "box_scanner/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Room Browser</h2>
+                    
+                    <!-- Add Room Form -->
+                    <form method="post" class="mb-4">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-10">
+                                <input type="text" 
+                                       class="form-control" 
+                                       name="name" 
+                                       placeholder="Room name" 
+                                       required>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <!-- Room List -->
+                    <div class="list-group">
+                        {% for room in rooms %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1">{{ room.name }}</h5>
+                                <small class="text-muted">{{ room.container_set.count }} containers</small>
+                            </div>
+                            <a href="{% url 'container_browser' %}?room={{ room.id }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-boxes"></i> View Containers
+                            </a>
+                        </div>
+                        {% empty %}
+                        <div class="alert alert-info">
+                            No rooms found. Add your first room above.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,157 @@
+{% extends "box_scanner/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Add Item</h2>
+
+                    <!-- Container Selection -->
+                    <div class="mb-4">
+                        <label for="container" class="form-label">Select Container (Optional)</label>
+                        <select id="container" name="container" class="form-select">
+                            <option value="">-- No container --</option>
+                            {% for container in containers %}
+                            <option value="{{ container.id }}" {% if request.GET.container == container.id|stringformat:"s" %}selected{% endif %}>
+                                {{ container.name }} ({{ container.location.name }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Camera Preview -->
+                    <div class="text-center mb-4">
+                        <video id="camera-preview" autoplay playsinline style="max-width: 100%; display: none;"></video>
+                        <canvas id="camera-canvas" style="display: none;"></canvas>
+                        <img id="captured-image" style="max-width: 100%; display: none;">
+                    </div>
+
+                    <!-- Camera Controls -->
+                    <div class="text-center mb-4">
+                        <button id="start-camera" class="btn btn-primary me-2">
+                            <i class="fas fa-camera"></i> Use Camera
+                        </button>
+                        <button id="capture-image" class="btn btn-success me-2" style="display: none;">
+                            <i class="fas fa-camera"></i> Capture
+                        </button>
+                        <button id="retake-image" class="btn btn-warning me-2" style="display: none;">
+                            <i class="fas fa-redo"></i> Retake
+                        </button>
+                    </div>
+
+                    <!-- File Upload -->
+                    <div class="mb-4">
+                        <label class="form-label">Or upload from file:</label>
+                        <input type="file" id="file-input" name="image" accept="image/*" class="form-control">
+                    </div>
+
+                    <!-- Upload Form -->
+                    <form id="upload-form" method="post" enctype="multipart/form-data" style="display: none;">
+                        {% csrf_token %}
+                        <input type="hidden" name="image" id="image-data">
+                        <input type="hidden" name="container" id="container-id">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-upload"></i> Upload Image
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let stream = null;
+const video = document.getElementById('camera-preview');
+const canvas = document.getElementById('camera-canvas');
+const capturedImage = document.getElementById('captured-image');
+const startButton = document.getElementById('start-camera');
+const captureButton = document.getElementById('capture-image');
+const retakeButton = document.getElementById('retake-image');
+const fileInput = document.getElementById('file-input');
+const uploadForm = document.getElementById('upload-form');
+const imageDataInput = document.getElementById('image-data');
+const containerSelect = document.getElementById('container');
+const containerIdInput = document.getElementById('container-id');
+
+// Set initial container ID from select
+containerIdInput.value = containerSelect.value;
+
+// Update container ID when selection changes
+containerSelect.addEventListener('change', () => {
+    containerIdInput.value = containerSelect.value;
+});
+
+// Start camera
+startButton.addEventListener('click', async () => {
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: 'environment' }, // Use back camera on mobile
+            audio: false 
+        });
+        video.srcObject = stream;
+        video.style.display = 'block';
+        startButton.style.display = 'none';
+        captureButton.style.display = 'inline-block';
+    } catch (err) {
+        console.error('Error accessing camera:', err);
+        alert('Error accessing camera. Please make sure you have granted camera permissions.');
+    }
+});
+
+// Capture image
+captureButton.addEventListener('click', () => {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    
+    // Convert to blob
+    canvas.toBlob(blob => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            capturedImage.src = reader.result;
+            capturedImage.style.display = 'block';
+            video.style.display = 'none';
+            captureButton.style.display = 'none';
+            retakeButton.style.display = 'inline-block';
+            uploadForm.style.display = 'block';
+            imageDataInput.value = reader.result;
+        };
+        reader.readAsDataURL(blob);
+    }, 'image/jpeg');
+});
+
+// Retake image
+retakeButton.addEventListener('click', () => {
+    capturedImage.style.display = 'none';
+    video.style.display = 'block';
+    captureButton.style.display = 'inline-block';
+    retakeButton.style.display = 'none';
+    uploadForm.style.display = 'none';
+});
+
+// Handle file input
+fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            capturedImage.src = reader.result;
+            capturedImage.style.display = 'block';
+            uploadForm.style.display = 'block';
+            imageDataInput.value = reader.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Clean up camera stream when leaving page
+window.addEventListener('beforeunload', () => {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
+});
+</script>
+{% endblock %}

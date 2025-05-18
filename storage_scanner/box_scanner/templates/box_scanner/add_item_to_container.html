@@ -1,0 +1,13 @@
+{% extends 'box_scanner/base.html' %}
+{% block content %}
+<h1>Dodaj przedmiot do kontenera</h1>
+
+<h3>Analizowany przedmiot: {{ item.name }}</h3>
+<img src="{{ item.image.url }}" alt="{{ item.name }}" class="img-fluid" />
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Przypisz do kontenera</button>
+</form>
+{% endblock %}

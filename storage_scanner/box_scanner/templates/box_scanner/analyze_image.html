@@ -1,0 +1,34 @@
+{% extends 'box_scanner/base.html' %}
+{% block content %}
+    <div class="container">
+        <h2>Prześlij zdjęcie</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" id="imageInput" name="image" accept="image/*" required>
+            <label for="imageInput">Wybierz zdjęcie</label>
+            <img id="preview" style="display: none;">
+            <button type="submit">Prześlij</button>
+        </form>
+        
+        {% if result %}
+            <h3>Wynik analizy</h3>
+            <p><strong>Tekst:</strong> {{ result.text }}</p>
+            <p><strong>Obiekty:</strong> {{ result.labels|join:", " }}</p>
+        {% endif %}
+    </div>
+    
+    <script>
+        document.getElementById('imageInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('preview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+{% endblock %}

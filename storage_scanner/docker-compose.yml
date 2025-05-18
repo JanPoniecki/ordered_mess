@@ -1,0 +1,33 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - static_volume:/app/static
+      - media_volume:/app/media
+    expose:
+      - ${MY_PORT}
+    environment:
+      - DEBUG=0
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1] ${MY_IP} 0.0.0.0
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_VISION_CREDENTIALS}
+      - USE_GOOGLE_VISION=${USE_GOOGLE_VISION}
+  
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx.Dockerfile
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    ports:
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"
+    depends_on:
+      - web
+
+volumes:
+  static_volume:
+  media_volume:

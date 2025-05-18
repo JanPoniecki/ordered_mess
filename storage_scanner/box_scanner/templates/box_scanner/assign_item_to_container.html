@@ -1,0 +1,11 @@
+{% extends 'box_scanner/base.html' %}
+{% block content %}
+<h1>Przypisz przedmiot do kontenera</h1>
+
+<h3>Przedmiot: {{ item.name }}</h3>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Przypisz</button>
+</form>
+{% endblock %}
