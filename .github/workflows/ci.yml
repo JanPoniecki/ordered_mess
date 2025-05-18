@@ -1,0 +1,15 @@
+name: Django CI # Nazwa Twojego workflow
+
+on: # Definicja, kiedy workflow ma się uruchamiać
+  push:
+    branches: [ master ] # Uruchom przy push na branch 'master' (lub 'main', jeśli taką masz główną gałąź)
+  pull_request:
+    branches: [ master ] # Opcjonalnie: uruchom także przy pull requestach do 'master'
+
+jobs: # Definicja zadań do wykonania
+  build_and_test: # Nazwa zadania
+    runs-on: ubuntu-latest # Określenie systemu operacyjnego maszyny wirtualnej, na której uruchomi się zadanie
+
+    steps: # Sekwencja kroków w zadaniu
+    - name: run django test
+      run: storage_scanner/python manage.py test
